@@ -5,6 +5,12 @@
 ##########
 
 TITLE = "My Calculator"
+INIT_ANS = ""
+
+# Errors:
+SYNTAX_ERROR = "Syntax ERROR"
+MATH_ERROR = "Math ERROR"
+STACK_ERROR = "Stack ERROR"
 
 # Screen properties:
 S_COLOR = "grey15"

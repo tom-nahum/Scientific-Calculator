@@ -5,9 +5,6 @@
 ##########
 
 from tkinter import *
-import tkinter as tk
-from tkinter import font as font
-from constants import *
 from functools import partial
 from myButton import *
 import math
@@ -39,9 +36,10 @@ class Gui:
 
     def __init__(self):
         self.screen = tk.Tk()
-        self.last_ans = "0"
+        self.last_ans = INIT_ANS
         self.exp_stack = []
         self.display_stack = []
+        self.error = False
         self.display_exp = StringVar()
         self.init_screen()
         self.display = self.set_display_banner()
@@ -91,7 +89,11 @@ class Gui:
             while j < cols:
                 x -= (WIDTH_GAP + t * 0.7 + width_gap)
                 key = self.buttons[i][j]
-                self.buttons_factory(key, t, x, y)
+                if key == AC or key == DEL:
+                    b_type = B4
+                else:
+                    b_type = t
+                self.buttons_factory(key, b_type, x, y)
                 j += 1
             y -= (HEIGHT_GAP + height_gap)
             x = S_WIDTH
@@ -119,8 +121,6 @@ class Gui:
         return key
 
     def buttons_factory(self, key, t, x, y):
-        if key == AC or key == DEL:
-            t = B4
         exp = self.get_exp(key)
         func = self.get_func(key)
         button = None
@@ -135,40 +135,57 @@ class Gui:
         button.create(self.screen)
 
     def key_func(self, key):
-        if len(self.exp_stack) == 0 and self.last_ans != "0" and key in self.arithmetic:
-            self.exp_stack.append(self.last_ans)
-            self.display_stack.append(ANS)
-        self.exp_stack.append(self.get_exp(key))
-        if key in self.functions:
-            self.display_stack.append(key + L_PAR)
-        else:
-            self.display_stack.append(key)
-        self.display_exp.set(to_string(self.display_stack))
+        if not self.error:
+            if len(self.exp_stack) == 0 and self.last_ans != INIT_ANS \
+                    and key in self.arithmetic:
+                self.exp_stack.append(self.last_ans)
+                self.display_stack.append(ANS)
+            self.exp_stack.append(self.get_exp(key))
+            if key in self.functions:
+                self.display_stack.append(key + L_PAR)
+            else:
+                self.display_stack.append(key)
+            self.display_exp.set(to_string(self.display_stack))
 
     def ans_func(self):
-        self.exp_stack.append(self.last_ans)
-        self.display_stack.append(ANS)
-        self.display_exp.set(to_string(self.display_stack))
+        if not self.error:
+            self.exp_stack.append(self.last_ans)
+            self.display_stack.append(ANS)
+            self.display_exp.set(to_string(self.display_stack))
 
     def del_func(self):
-        if len(self.exp_stack) != 0 and len(self.display_stack) != 0:
+        if not self.error and len(self.exp_stack) != 0:
             self.exp_stack.pop()
             self.display_stack.pop()
             self.display_exp.set(to_string(self.display_stack))
 
     def ac_func(self):
+        if self.error:
+            self.error = False
+            self.last_ans = INIT_ANS
         self.exp_stack.clear()
         self.display_stack.clear()
         self.display_exp.set(to_string(self.display_stack))
 
     def equals_func(self):
-        try:
-            result = str(eval(to_string(self.exp_stack)))
-            self.display_exp.set(result)
-            self.last_ans = result
-            self.exp_stack.clear()
-            self.display_stack.clear()
-        except:  # TODO: split to cases of errors
-            self.display_exp.set("ERROR")
-            self.exp_stack.clear()
-            self.display_stack.clear()
+        if not self.error:
+            try:
+                if len(self.exp_stack) == 0:
+                    self.display_exp.set(self.last_ans)
+                else:
+                    result = str(eval(to_string(self.exp_stack)))
+                    self.display_exp.set(result)
+                    self.last_ans = result
+            except OverflowError:
+                self.display_exp.set(STACK_ERROR)
+                self.error = True
+            except ZeroDivisionError:
+                self.display_exp.set(MATH_ERROR)
+                self.error = True
+            except SyntaxError:
+                self.display_exp.set(SYNTAX_ERROR)
+                self.error = True
+            finally:
+                self.exp_stack.clear()
+                self.display_stack.clear()
+
