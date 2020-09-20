@@ -7,6 +7,14 @@
 TITLE = "My Calculator"
 INIT_ANS = ""
 
+# Arrows
+DIS_SEP = "|"
+EXP_SEP = ""
+L_ARR = "◄"
+R_ARR = "►"
+R = 1
+L = -1
+
 # Errors:
 SYNTAX_ERROR = "Syntax ERROR"
 MATH_ERROR = "Math ERROR"

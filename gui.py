@@ -9,12 +9,6 @@ from functools import partial
 from myButton import *
 import math
 
-LOC = "|"
-
-L_ARR = "◄"
-
-R_ARR = "►"
-
 
 def to_string(stack):
     return ''.join(stack)
@@ -25,6 +19,15 @@ def get_gap(t):
         return B1_HEIGHT, B1_WIDTH
     else:
         return B2_HEIGHT, B2_WIDTH
+
+
+def get_b_type(key, t):
+    if key == AC or key == DEL:
+        return B4
+    elif key == L_ARR or key == R_ARR:
+        return B5
+    else:
+        return t
 
 
 class Gui:
@@ -45,8 +48,8 @@ class Gui:
     def __init__(self):
         self.screen = tk.Tk()
         self.last_ans = INIT_ANS
-        self.exp_stack = []
-        self.display_stack = [LOC]
+        self.exp_stack = [EXP_SEP]
+        self.display_stack = [DIS_SEP]
         self.error = False
         self.cur_idx = 0
         self.display_exp = StringVar()
@@ -93,21 +96,13 @@ class Gui:
         # create small buttons
         self.create_buttons(i, j, x, y, 7, 6, B2)
 
-    def get_b_type(self, key, t):
-        if key == AC or key == DEL:
-            return B4
-        elif key == L_ARR or key == R_ARR:
-            return B5
-        else:
-            return t
-
     def create_buttons(self, i, j, x, y, rows, cols, t):
         height_gap, width_gap = get_gap(t)
         while i < rows:
             while j < cols:
                 x -= (WIDTH_GAP + t * 0.7 + width_gap)
                 key = self.buttons[i][j]
-                b_type = self.get_b_type(key, t)
+                b_type = get_b_type(key, t)
                 self.buttons_factory(key, b_type, x, y)
                 j += 1
             y -= (HEIGHT_GAP + height_gap)
@@ -125,6 +120,10 @@ class Gui:
             return self.del_func
         elif key == AC:
             return self.ac_func
+        elif key == L_ARR:
+            return partial(self.arrow_func, L)
+        elif key == R_ARR:
+            return partial(self.arrow_func, R)
         else:
             return partial(self.key_func, key)
 
@@ -151,51 +150,81 @@ class Gui:
             button = ArrowButton(key, exp, (x, y), func)
         button.create(self.screen)
 
+    def add_elem(self, elem, indicator):
+        if indicator == DIS_SEP:
+            self.display_stack = self.display_stack[:self.cur_idx] + [elem] + \
+                                 [indicator] + self.display_stack[self.cur_idx + 1:]
+        elif indicator == EXP_SEP:
+            self.exp_stack = self.exp_stack[:self.cur_idx] + [elem] + \
+                             [indicator] + self.exp_stack[self.cur_idx + 1:]
+
+    def remove_elem(self, indicator):
+        if indicator == DIS_SEP:
+            self.display_stack = self.display_stack[:self.cur_idx - 1] + \
+                                 self.display_stack[self.cur_idx:]
+        elif indicator == EXP_SEP:
+            self.exp_stack = self.exp_stack[:self.cur_idx - 1] + \
+                             self.exp_stack[self.cur_idx:]
+
+    def arrow_func(self, direct):
+        if not ((direct == L and self.cur_idx == 0) or
+                (direct == R and self.cur_idx == len(self.display_stack) - 1)):
+            self.display_stack[self.cur_idx] = self.display_stack[self.cur_idx + direct]
+            self.display_stack[self.cur_idx + direct] = DIS_SEP
+            self.display_exp.set(to_string(self.display_stack))
+            self.exp_stack[self.cur_idx] = self.exp_stack[self.cur_idx + direct]
+            self.exp_stack[self.cur_idx + direct] = DIS_SEP
+            self.cur_idx += direct
+        print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+
     def key_func(self, key):
         if not self.error:
-            if len(self.exp_stack) == 0 and self.last_ans != INIT_ANS \
+            if len(self.exp_stack) == 1 and self.last_ans != INIT_ANS \
                     and key in self.arithmetic:
-                self.exp_stack.append(self.last_ans)
-                self.display_stack.append(ANS)
+                self.add_elem(self.last_ans, EXP_SEP)
+                self.add_elem(ANS, DIS_SEP)
                 self.cur_idx += 1
-            self.exp_stack.append(self.get_exp(key))
-
+            self.add_elem(self.get_exp(key), EXP_SEP)
             if key in self.functions:
-                self.display_stack.append(key + L_PAR)
+                self.add_elem(key + L_PAR, DIS_SEP)
             elif key in self.keys_conv:
-                self.display_stack.append(self.keys_conv.get(key))
+                self.add_elem(self.keys_conv.get(key), DIS_SEP)
             else:
-                self.display_stack.append(key)
+                self.add_elem(key, DIS_SEP)
             self.cur_idx += 1
             self.display_exp.set(to_string(self.display_stack))
+            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
 
     def ans_func(self):
         if not self.error:
-            self.exp_stack.append(self.last_ans)
-            self.display_stack.append(ANS)
+            self.add_elem(self.last_ans, EXP_SEP)
+            self.add_elem(ANS, DIS_SEP)
             self.cur_idx += 1
             self.display_exp.set(to_string(self.display_stack))
+            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
 
     def del_func(self):
-        if not self.error and len(self.exp_stack) != 0:
-            self.exp_stack.pop()
-            self.display_stack.pop()
+        if not self.error and len(self.exp_stack) != 1:
+            self.remove_elem(EXP_SEP)
+            self.remove_elem(DIS_SEP)
             self.cur_idx -= 1
             self.display_exp.set(to_string(self.display_stack))
+            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
 
     def ac_func(self):
         if self.error:
             self.error = False
             self.last_ans = INIT_ANS
-        self.exp_stack.clear()
-        self.display_stack.clear()
+        self.exp_stack = [EXP_SEP]
+        self.display_stack = [DIS_SEP]
         self.cur_idx = 0
         self.display_exp.set(to_string(self.display_stack))
+        print("exp: ", self.exp_stack, "dis: ", self.display_stack)
 
     def equals_func(self):
         if not self.error:
             try:
-                if len(self.exp_stack) == 0:
+                if len(self.exp_stack) == 1:
                     self.display_exp.set(self.last_ans)
                 else:
                     result = str(eval(to_string(self.exp_stack)))
@@ -211,6 +240,7 @@ class Gui:
                 self.display_exp.set(SYNTAX_ERROR)
                 self.error = True
             finally:
-                self.exp_stack.clear()
-                self.display_stack.clear()
+                self.exp_stack = [EXP_SEP]
+                self.display_stack = [DIS_SEP]
                 self.cur_idx = 0
+                print("exp: ", self.exp_stack, "dis: ", self.display_stack)
