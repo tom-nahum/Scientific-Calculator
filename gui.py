@@ -9,6 +9,12 @@ from functools import partial
 from myButton import *
 import math
 
+LOC = "|"
+
+L_ARR = "◄"
+
+R_ARR = "►"
+
 
 def to_string(stack):
     return ''.join(stack)
@@ -23,26 +29,30 @@ def get_gap(t):
 
 class Gui:
     arithmetic = {MOD: OP_MOD, POW: OP_POW, POW_3: OP_POW_3, POW_2: OP_POW_2,
-                  DIVIDE: OP_DIVIDE, MUL: OP_MUL, PLUS: PLUS, MINUS: MINUS}
-    functions = {SIN: OP_SIN, COS: OP_COS, TAN: OP_TAN, EXP: OP_EXP, LN: OP_LN,
-                 SQRT: OP_SQRT}
+                  DIVIDE: OP_DIVIDE, MUL: OP_MUL, PLUS: PLUS, MINUS: MINUS,
+                  INVERSE: INVERSE_OP}
+    functions = {SQRT: OP_SQRT, SIN: OP_SIN, COS: OP_COS, TAN: OP_TAN, EXP: OP_EXP,
+                 LN: OP_LN}
+    keys_conv = {POW_2: "²", POW_3: "³", POW: "^", INVERSE: "⁻¹"}
     buttons = [[EQUALS, EQUALS, ANS, DOT, ZERO],
                [MINUS, PLUS, THREE, TWO, ONE],
                [DIVIDE, MUL, SIX, FIVE, FOUR],
                [AC, DEL, NINE, EIGHT, SEVEN],
-               [MOD, POW, POW_3, POW_2, R_PAR, L_PAR],
-               [LN, EXP, TAN, COS, SIN, SQRT],
-               ["", "", "", "", "", ""]]
+               [POW, POW_3, POW_2, SQRT, R_PAR, L_PAR],
+               [LOG, LN, EXP, TAN, COS, SIN, ],
+               [MOD, INVERSE, R_ARR, L_ARR, "", ""]]
 
     def __init__(self):
         self.screen = tk.Tk()
         self.last_ans = INIT_ANS
         self.exp_stack = []
-        self.display_stack = []
+        self.display_stack = [LOC]
         self.error = False
+        self.cur_idx = 0
         self.display_exp = StringVar()
         self.init_screen()
         self.display = self.set_display_banner()
+        self.display_exp.set(to_string(self.display_stack))
 
     def init_screen(self):
         self.screen.title(TITLE)
@@ -83,16 +93,21 @@ class Gui:
         # create small buttons
         self.create_buttons(i, j, x, y, 7, 6, B2)
 
+    def get_b_type(self, key, t):
+        if key == AC or key == DEL:
+            return B4
+        elif key == L_ARR or key == R_ARR:
+            return B5
+        else:
+            return t
+
     def create_buttons(self, i, j, x, y, rows, cols, t):
         height_gap, width_gap = get_gap(t)
         while i < rows:
             while j < cols:
                 x -= (WIDTH_GAP + t * 0.7 + width_gap)
                 key = self.buttons[i][j]
-                if key == AC or key == DEL:
-                    b_type = B4
-                else:
-                    b_type = t
+                b_type = self.get_b_type(key, t)
                 self.buttons_factory(key, b_type, x, y)
                 j += 1
             y -= (HEIGHT_GAP + height_gap)
@@ -132,6 +147,8 @@ class Gui:
             button = EqualsButton(key, exp, (x, y), func)
         elif t == B4:
             button = ResetButtons(key, exp, (x, y), func)
+        elif t == B5:
+            button = ArrowButton(key, exp, (x, y), func)
         button.create(self.screen)
 
     def key_func(self, key):
@@ -140,23 +157,30 @@ class Gui:
                     and key in self.arithmetic:
                 self.exp_stack.append(self.last_ans)
                 self.display_stack.append(ANS)
+                self.cur_idx += 1
             self.exp_stack.append(self.get_exp(key))
+
             if key in self.functions:
                 self.display_stack.append(key + L_PAR)
+            elif key in self.keys_conv:
+                self.display_stack.append(self.keys_conv.get(key))
             else:
                 self.display_stack.append(key)
+            self.cur_idx += 1
             self.display_exp.set(to_string(self.display_stack))
 
     def ans_func(self):
         if not self.error:
             self.exp_stack.append(self.last_ans)
             self.display_stack.append(ANS)
+            self.cur_idx += 1
             self.display_exp.set(to_string(self.display_stack))
 
     def del_func(self):
         if not self.error and len(self.exp_stack) != 0:
             self.exp_stack.pop()
             self.display_stack.pop()
+            self.cur_idx -= 1
             self.display_exp.set(to_string(self.display_stack))
 
     def ac_func(self):
@@ -165,6 +189,7 @@ class Gui:
             self.last_ans = INIT_ANS
         self.exp_stack.clear()
         self.display_stack.clear()
+        self.cur_idx = 0
         self.display_exp.set(to_string(self.display_stack))
 
     def equals_func(self):
@@ -188,4 +213,4 @@ class Gui:
             finally:
                 self.exp_stack.clear()
                 self.display_stack.clear()
-
+                self.cur_idx = 0

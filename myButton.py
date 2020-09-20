@@ -50,6 +50,12 @@ class ExtraButton(MyButton):
         self.width = B2_WIDTH
 
 
+class ArrowButton(ExtraButton):
+    def __init__(self, key, exp, loc, func):
+        super().__init__(key, exp, loc, func)
+        self.color = B5_COLOR
+
+
 class EqualsButton(MyButton):
     def __init__(self, key, exp, loc, func):
         super().__init__(key, exp, loc, func)

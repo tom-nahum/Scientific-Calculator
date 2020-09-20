@@ -65,14 +65,16 @@ COS = "cos"
 TAN = "tan"
 EXP = "exp"
 LN = "ln"
-SQRT = "sqrt"
+SQRT = "√"
+LOG = "log"
 # Arithmetic operands
 MOD = "mod"
-POW = "^"
-POW_3 = "^3"
-POW_2 = "^2"
-DIVIDE = ":"
-MUL = "x"
+POW = "xⁿ"
+POW_3 = "x³"
+POW_2 = "x²"
+DIVIDE = "÷"
+MUL = "×"
+INVERSE = "x⁻¹"
 # Specials keys:
 AC = "AC"
 DEL = "DEL"
@@ -110,6 +112,7 @@ OP_POW_3 = "**3"
 OP_POW_2 = "**2"
 OP_DIVIDE = "/"
 OP_MUL = "*"
+INVERSE_OP = "1/"
 
 # Big buttons:
 B1 = 0
@@ -130,3 +133,6 @@ B3_WIDTH = B1_WIDTH * 2 + WIDTH_GAP
 B4 = 3
 B4_COLOR = "DarkOrange2"
 B4_FG = "black"
+# Arrows:
+B5 = 4
+B5_COLOR = "midnight blue"
