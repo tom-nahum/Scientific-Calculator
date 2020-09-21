@@ -114,7 +114,7 @@ OP_SIN = "math.sin("
 OP_COS = "math.cos("
 OP_TAN = "math.tan("
 OP_EXP = "math.exp("
-OP_LN = "math.ln("
+OP_LN = "math.log("
 OP_SQRT = "math.sqrt("
 # Arithmetic operands:
 OP_MOD = "%"

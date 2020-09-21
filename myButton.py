@@ -11,7 +11,6 @@ from constants import *
 
 
 class MyButton(ABC):
-
     def __init__(self, key, loc, func):
         self.size = None
         self.color = None

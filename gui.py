@@ -7,6 +7,7 @@
 from tkinter import *
 from functools import partial
 from myButton import *
+import threading
 import math
 
 
@@ -28,12 +29,12 @@ def get_b_type(key, t):
 
 class Gui:
     arithmetic = {MOD: OP_MOD, POW: OP_POW, POW_3: OP_POW_3, POW_2: OP_POW_2,
-                  DIVIDE: OP_DIVIDE, MUL: OP_MUL, PLUS: PLUS, MINUS: MINUS,
-                  L_FLOOR: OP_L_FLOOR, R_FLOOR: OP_R_FLOOR, L_CEIL: OP_L_CEIL,
-                  R_CEIL: OP_R_CEIL}
+                  DIVIDE: OP_DIVIDE, MUL: OP_MUL, PLUS: PLUS, MINUS: MINUS}
     functions = {SQRT: OP_SQRT, SIN: OP_SIN, COS: OP_COS, TAN: OP_TAN, EXP: OP_EXP,
                  LN: OP_LN}
     powers = {POW_2: POW_2_DIS, POW_3: POW_3_DIS, POW: POW_DIS}
+    rounding = {L_FLOOR: OP_L_FLOOR, R_FLOOR: OP_R_FLOOR, L_CEIL: OP_L_CEIL,
+                R_CEIL: OP_R_CEIL}
     buttons = [[EQUALS, EQUALS, ANS, DOT, ZERO],
                [MINUS, PLUS, THREE, TWO, ONE],
                [DIVIDE, MUL, SIX, FIVE, FOUR],
@@ -46,12 +47,14 @@ class Gui:
         self.screen = tk.Tk()
         self.last_ans = INIT_ANS
         self.exp_stack = [(EXP_SEP, DIS_SEP)]
-        self.error = False
+        self.is_error = False
+        self.is_answer = False
         self.cur_idx = 0
         self.display_var = StringVar()
         self.init_screen()
         self.display_banner = self.set_display_banner()
         self.display_exp()
+        self.screen.after(450, self.cursor)
 
     def init_screen(self):
         self.screen.title(TITLE)
@@ -79,6 +82,16 @@ class Gui:
         display.pack()
         display.place(height=DISPLAY_H, width=DISPLAY_W, x=DISPLAY_X, y=DISPLAY_Y)
         return display
+
+    def cursor(self):
+        if not self.is_answer and not self.is_error:
+            cur = self.exp_stack[self.cur_idx]
+            if cur[1] == DIS_SEP:
+                self.exp_stack[self.cur_idx] = (EXP_SEP, "")
+            elif cur[1] == "":
+                self.exp_stack[self.cur_idx] = (EXP_SEP, DIS_SEP)
+            self.display_exp()
+        self.screen.after(400, self.cursor)
 
     def set_buttons(self):
         x = S_WIDTH - (2 * (WIDTH_GAP + B1_WIDTH))
@@ -146,28 +159,23 @@ class Gui:
         self.exp_stack = self.exp_stack[:self.cur_idx] + [(exp_elem, dis_elem)] + \
                          [(EXP_SEP, DIS_SEP)] + self.exp_stack[self.cur_idx + 1:]
 
-    def remove_elem(self, ):
+    def remove_elem(self):
+        elem = self.exp_stack[self.cur_idx - 1]
         self.exp_stack = self.exp_stack[:self.cur_idx - 1] + self.exp_stack[self.cur_idx:]
+        return elem
 
     def print_exp(self):
         exp = "".join(elem[0] for elem in self.exp_stack)
         dis = "".join(elem[1] for elem in self.exp_stack)
         print("Exp: ", exp, "\t", "Dis: ", dis)
 
-    def arrow_func(self, direct):
-        if not ((direct == L and self.cur_idx == 0) or
-                (direct == R and self.cur_idx == len(self.exp_stack) - 1)):
-            self.exp_stack[self.cur_idx] = self.exp_stack[self.cur_idx + direct]
-            self.exp_stack[self.cur_idx + direct] = (EXP_SEP, DIS_SEP)
-            self.display_exp()
-            self.cur_idx += direct
-        self.print_exp()
-
     def get_exp(self, key):
         if key in self.arithmetic:
             return self.arithmetic.get(key)
         elif key in self.functions:
             return self.functions.get(key)
+        elif key in self.rounding:
+            return self.rounding.get(key)
         return key
 
     def get_dis(self, key):
@@ -178,34 +186,61 @@ class Gui:
         else:
             return key
 
+    def arrow_func(self, direct):
+        if not self.is_error and \
+                not ((direct == L and self.cur_idx == 0) or
+                     (direct == R and self.cur_idx == len(self.exp_stack) - 1)):
+            self.is_answer = False
+            self.exp_stack[self.cur_idx] = self.exp_stack[self.cur_idx + direct]
+            self.exp_stack[self.cur_idx + direct] = (EXP_SEP, DIS_SEP)
+            self.display_exp()
+            self.cur_idx += direct
+        self.print_exp()
+
+    def check_power(self):
+        if self.cur_idx - 1 >= 0 and \
+                self.exp_stack[self.cur_idx - 1][1] in self.powers.values():
+            return True
+        elif self.cur_idx + 1 <= len(self.exp_stack)-1 and \
+                self.exp_stack[self.cur_idx + 1][1] in self.powers.values():
+            return True
+        else:
+            return False
+
     def key_func(self, key):
-        if not self.error:
+        if not self.is_error:
+            self.is_answer = False
             if len(self.exp_stack) == 1 and self.last_ans != INIT_ANS \
                     and key in self.arithmetic:
                 self.add_elem(self.last_ans, ANS)
                 self.cur_idx += 1
+            if key in self.powers and self.check_power():
+                return
             self.add_elem(self.get_exp(key), self.get_dis(key))
             self.cur_idx += 1
             self.display_exp()
         self.print_exp()
 
     def ans_func(self):
-        if not self.error:
+        if not self.is_error:
+            self.is_answer = False
             self.add_elem(self.last_ans, ANS)
             self.cur_idx += 1
             self.display_exp()
         self.print_exp()
 
     def del_func(self):
-        if not self.error and len(self.exp_stack) != 1:
-            self.remove_elem()
+        if not self.is_error and len(self.exp_stack) != 1:
+            self.is_answer = False
+            elem = self.remove_elem()
             self.cur_idx -= 1
             self.display_exp()
         self.print_exp()
 
     def ac_func(self):
-        if self.error:
-            self.error = False
+        if self.is_error:
+            self.is_answer = False
+            self.is_error = False
             self.last_ans = INIT_ANS
         self.exp_stack = [(EXP_SEP, DIS_SEP)]
         self.cur_idx = 0
@@ -213,7 +248,7 @@ class Gui:
         self.print_exp()
 
     def equals_func(self):
-        if not self.error:
+        if not self.is_error:
             try:
                 if len(self.exp_stack) == 1:
                     self.display_var.set(self.last_ans)
@@ -224,14 +259,15 @@ class Gui:
                     self.last_ans = result
             except OverflowError:
                 self.display_var.set(STACK_ERROR)
-                self.error = True
-            except ZeroDivisionError:
+                self.is_error = True
+            except (ZeroDivisionError, ValueError):
                 self.display_var.set(MATH_ERROR)
-                self.error = True
+                self.is_error = True
             except SyntaxError:
                 self.display_var.set(SYNTAX_ERROR)
-                self.error = True
+                self.is_error = True
             finally:
+                self.is_answer = True
                 self.exp_stack = [(EXP_SEP, DIS_SEP)]
                 self.cur_idx = 0
                 self.print_exp()
