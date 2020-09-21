@@ -10,10 +10,6 @@ from myButton import *
 import math
 
 
-def to_string(stack):
-    return ''.join(stack)
-
-
 def get_gap(t):
     if t == B1:
         return B1_HEIGHT, B1_WIDTH
@@ -33,29 +29,29 @@ def get_b_type(key, t):
 class Gui:
     arithmetic = {MOD: OP_MOD, POW: OP_POW, POW_3: OP_POW_3, POW_2: OP_POW_2,
                   DIVIDE: OP_DIVIDE, MUL: OP_MUL, PLUS: PLUS, MINUS: MINUS,
-                  INVERSE: INVERSE_OP}
+                  L_FLOOR: OP_L_FLOOR, R_FLOOR: OP_R_FLOOR, L_CEIL: OP_L_CEIL,
+                  R_CEIL: OP_R_CEIL}
     functions = {SQRT: OP_SQRT, SIN: OP_SIN, COS: OP_COS, TAN: OP_TAN, EXP: OP_EXP,
                  LN: OP_LN}
-    keys_conv = {POW_2: "²", POW_3: "³", POW: "^", INVERSE: "⁻¹"}
+    powers = {POW_2: POW_2_DIS, POW_3: POW_3_DIS, POW: POW_DIS}
     buttons = [[EQUALS, EQUALS, ANS, DOT, ZERO],
                [MINUS, PLUS, THREE, TWO, ONE],
                [DIVIDE, MUL, SIX, FIVE, FOUR],
                [AC, DEL, NINE, EIGHT, SEVEN],
                [POW, POW_3, POW_2, SQRT, R_PAR, L_PAR],
-               [LOG, LN, EXP, TAN, COS, SIN, ],
-               [MOD, INVERSE, R_ARR, L_ARR, "", ""]]
+               [MOD, LN, EXP, TAN, COS, SIN],
+               [R_FLOOR, L_FLOOR, R_ARR, L_ARR, R_CEIL, L_CEIL]]
 
     def __init__(self):
         self.screen = tk.Tk()
         self.last_ans = INIT_ANS
-        self.exp_stack = [EXP_SEP]
-        self.display_stack = [DIS_SEP]
+        self.exp_stack = [(EXP_SEP, DIS_SEP)]
         self.error = False
         self.cur_idx = 0
-        self.display_exp = StringVar()
+        self.display_var = StringVar()
         self.init_screen()
-        self.display = self.set_display_banner()
-        self.display_exp.set(to_string(self.display_stack))
+        self.display_banner = self.set_display_banner()
+        self.display_exp()
 
     def init_screen(self):
         self.screen.title(TITLE)
@@ -78,7 +74,7 @@ class Gui:
 
     def set_display_banner(self):
         display_font = font.Font(family=FONT, size=D_F_SIZE)
-        display = Entry(self.screen, textvariable=self.display_exp, bd=BORDER_SIZE,
+        display = Entry(self.screen, textvariable=self.display_var, bd=BORDER_SIZE,
                         bg=DISPLAY_BG, font=display_font, fg=DISPLAY_FG)
         display.pack()
         display.place(height=DISPLAY_H, width=DISPLAY_W, x=DISPLAY_X, y=DISPLAY_Y)
@@ -127,6 +123,46 @@ class Gui:
         else:
             return partial(self.key_func, key)
 
+    def buttons_factory(self, key, t, x, y):
+        func = self.get_func(key)
+        button = None
+        if t == B1:
+            button = StandardButton(key, (x, y), func)
+        elif t == B2:
+            button = ExtraButton(key, (x, y), func)
+        elif t == B3:
+            button = EqualsButton(key, (x, y), func)
+        elif t == B4:
+            button = ResetButtons(key, (x, y), func)
+        elif t == B5:
+            button = ArrowButton(key, (x, y), func)
+        button.create(self.screen)
+
+    def display_exp(self):
+        cur_dis = "".join(elem[1] for elem in self.exp_stack)
+        self.display_var.set(cur_dis)
+
+    def add_elem(self, exp_elem, dis_elem):
+        self.exp_stack = self.exp_stack[:self.cur_idx] + [(exp_elem, dis_elem)] + \
+                         [(EXP_SEP, DIS_SEP)] + self.exp_stack[self.cur_idx + 1:]
+
+    def remove_elem(self, ):
+        self.exp_stack = self.exp_stack[:self.cur_idx - 1] + self.exp_stack[self.cur_idx:]
+
+    def print_exp(self):
+        exp = "".join(elem[0] for elem in self.exp_stack)
+        dis = "".join(elem[1] for elem in self.exp_stack)
+        print("Exp: ", exp, "\t", "Dis: ", dis)
+
+    def arrow_func(self, direct):
+        if not ((direct == L and self.cur_idx == 0) or
+                (direct == R and self.cur_idx == len(self.exp_stack) - 1)):
+            self.exp_stack[self.cur_idx] = self.exp_stack[self.cur_idx + direct]
+            self.exp_stack[self.cur_idx + direct] = (EXP_SEP, DIS_SEP)
+            self.display_exp()
+            self.cur_idx += direct
+        self.print_exp()
+
     def get_exp(self, key):
         if key in self.arithmetic:
             return self.arithmetic.get(key)
@@ -134,113 +170,68 @@ class Gui:
             return self.functions.get(key)
         return key
 
-    def buttons_factory(self, key, t, x, y):
-        exp = self.get_exp(key)
-        func = self.get_func(key)
-        button = None
-        if t == B1:
-            button = StandardButton(key, exp, (x, y), func)
-        elif t == B2:
-            button = ExtraButton(key, exp, (x, y), func)
-        elif t == B3:
-            button = EqualsButton(key, exp, (x, y), func)
-        elif t == B4:
-            button = ResetButtons(key, exp, (x, y), func)
-        elif t == B5:
-            button = ArrowButton(key, exp, (x, y), func)
-        button.create(self.screen)
-
-    def add_elem(self, elem, indicator):
-        if indicator == DIS_SEP:
-            self.display_stack = self.display_stack[:self.cur_idx] + [elem] + \
-                                 [indicator] + self.display_stack[self.cur_idx + 1:]
-        elif indicator == EXP_SEP:
-            self.exp_stack = self.exp_stack[:self.cur_idx] + [elem] + \
-                             [indicator] + self.exp_stack[self.cur_idx + 1:]
-
-    def remove_elem(self, indicator):
-        if indicator == DIS_SEP:
-            self.display_stack = self.display_stack[:self.cur_idx - 1] + \
-                                 self.display_stack[self.cur_idx:]
-        elif indicator == EXP_SEP:
-            self.exp_stack = self.exp_stack[:self.cur_idx - 1] + \
-                             self.exp_stack[self.cur_idx:]
-
-    def arrow_func(self, direct):
-        if not ((direct == L and self.cur_idx == 0) or
-                (direct == R and self.cur_idx == len(self.display_stack) - 1)):
-            self.display_stack[self.cur_idx] = self.display_stack[self.cur_idx + direct]
-            self.display_stack[self.cur_idx + direct] = DIS_SEP
-            self.display_exp.set(to_string(self.display_stack))
-            self.exp_stack[self.cur_idx] = self.exp_stack[self.cur_idx + direct]
-            self.exp_stack[self.cur_idx + direct] = DIS_SEP
-            self.cur_idx += direct
-        print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+    def get_dis(self, key):
+        if key in self.functions:
+            return key + L_PAR
+        elif key in self.powers:
+            return self.powers.get(key)
+        else:
+            return key
 
     def key_func(self, key):
         if not self.error:
             if len(self.exp_stack) == 1 and self.last_ans != INIT_ANS \
                     and key in self.arithmetic:
-                self.add_elem(self.last_ans, EXP_SEP)
-                self.add_elem(ANS, DIS_SEP)
+                self.add_elem(self.last_ans, ANS)
                 self.cur_idx += 1
-            self.add_elem(self.get_exp(key), EXP_SEP)
-            if key in self.functions:
-                self.add_elem(key + L_PAR, DIS_SEP)
-            elif key in self.keys_conv:
-                self.add_elem(self.keys_conv.get(key), DIS_SEP)
-            else:
-                self.add_elem(key, DIS_SEP)
+            self.add_elem(self.get_exp(key), self.get_dis(key))
             self.cur_idx += 1
-            self.display_exp.set(to_string(self.display_stack))
-            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+            self.display_exp()
+        self.print_exp()
 
     def ans_func(self):
         if not self.error:
-            self.add_elem(self.last_ans, EXP_SEP)
-            self.add_elem(ANS, DIS_SEP)
+            self.add_elem(self.last_ans, ANS)
             self.cur_idx += 1
-            self.display_exp.set(to_string(self.display_stack))
-            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+            self.display_exp()
+        self.print_exp()
 
     def del_func(self):
         if not self.error and len(self.exp_stack) != 1:
-            self.remove_elem(EXP_SEP)
-            self.remove_elem(DIS_SEP)
+            self.remove_elem()
             self.cur_idx -= 1
-            self.display_exp.set(to_string(self.display_stack))
-            print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+            self.display_exp()
+        self.print_exp()
 
     def ac_func(self):
         if self.error:
             self.error = False
             self.last_ans = INIT_ANS
-        self.exp_stack = [EXP_SEP]
-        self.display_stack = [DIS_SEP]
+        self.exp_stack = [(EXP_SEP, DIS_SEP)]
         self.cur_idx = 0
-        self.display_exp.set(to_string(self.display_stack))
-        print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+        self.display_exp()
+        self.print_exp()
 
     def equals_func(self):
         if not self.error:
             try:
                 if len(self.exp_stack) == 1:
-                    self.display_exp.set(self.last_ans)
+                    self.display_var.set(self.last_ans)
                 else:
-                    result = str(eval(to_string(self.exp_stack)))
-                    self.display_exp.set(result)
+                    expression = "".join(elem[0] for elem in self.exp_stack)
+                    result = str(eval(expression))
+                    self.display_var.set(result)
                     self.last_ans = result
             except OverflowError:
-                self.display_exp.set(STACK_ERROR)
+                self.display_var.set(STACK_ERROR)
                 self.error = True
             except ZeroDivisionError:
-                self.display_exp.set(MATH_ERROR)
+                self.display_var.set(MATH_ERROR)
                 self.error = True
             except SyntaxError:
-                self.display_exp.set(SYNTAX_ERROR)
+                self.display_var.set(SYNTAX_ERROR)
                 self.error = True
             finally:
-                self.exp_stack = [EXP_SEP]
-                self.display_stack = [DIS_SEP]
+                self.exp_stack = [(EXP_SEP, DIS_SEP)]
                 self.cur_idx = 0
-                print("exp: ", self.exp_stack, "dis: ", self.display_stack)
+                self.print_exp()

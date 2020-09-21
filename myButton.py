@@ -12,14 +12,13 @@ from constants import *
 
 class MyButton(ABC):
 
-    def __init__(self, key, exp, loc, func):
+    def __init__(self, key, loc, func):
         self.size = None
         self.color = None
         self.height = None
         self.width = None
         self.font_color = B_FG
         self.key = key
-        self.expression = exp
         self.func = func
         self.x = loc[0]
         self.y = loc[1]
@@ -33,8 +32,8 @@ class MyButton(ABC):
 
 
 class StandardButton(MyButton):
-    def __init__(self, key, exp, loc, func):
-        super().__init__(key, exp, loc, func)
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
         self.size = B1_SIZE
         self.color = B1_COLOR
         self.height = B1_HEIGHT
@@ -42,8 +41,8 @@ class StandardButton(MyButton):
 
 
 class ExtraButton(MyButton):
-    def __init__(self, key, exp, loc, func):
-        super().__init__(key, exp, loc, func)
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
         self.size = B2_SIZE
         self.color = B2_COLOR
         self.height = B2_HEIGHT
@@ -51,14 +50,14 @@ class ExtraButton(MyButton):
 
 
 class ArrowButton(ExtraButton):
-    def __init__(self, key, exp, loc, func):
-        super().__init__(key, exp, loc, func)
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
         self.color = B5_COLOR
 
 
 class EqualsButton(MyButton):
-    def __init__(self, key, exp, loc, func):
-        super().__init__(key, exp, loc, func)
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
         self.size = B1_SIZE
         self.color = B1_COLOR
         self.height = B1_HEIGHT
@@ -66,8 +65,8 @@ class EqualsButton(MyButton):
 
 
 class ResetButtons(MyButton):
-    def __init__(self, key, exp, loc, func):
-        super().__init__(key, exp, loc, func)
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
         self.size = B1_SIZE
         self.color = B4_COLOR
         self.height = B1_HEIGHT

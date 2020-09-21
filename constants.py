@@ -82,7 +82,10 @@ POW_3 = "x³"
 POW_2 = "x²"
 DIVIDE = "÷"
 MUL = "×"
-INVERSE = "x⁻¹"
+L_CEIL = "⌈"
+R_CEIL = "⌉"
+R_FLOOR = "⌋"
+L_FLOOR = "⌊"
 # Specials keys:
 AC = "AC"
 DEL = "DEL"
@@ -120,7 +123,15 @@ OP_POW_3 = "**3"
 OP_POW_2 = "**2"
 OP_DIVIDE = "/"
 OP_MUL = "*"
-INVERSE_OP = "1/"
+OP_R_CEIL = ")"
+OP_L_CEIL = "math.ceil("
+OP_R_FLOOR = ")"
+OP_L_FLOOR = "math.floor("
+
+# The text on the display banner:
+POW_DIS = "^"
+POW_3_DIS = "³"
+POW_2_DIS = "²"
 
 # Big buttons:
 B1 = 0
