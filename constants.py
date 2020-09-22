@@ -7,6 +7,7 @@
 TITLE = "My Calculator"
 INIT_ANS = ""
 MAX_CHARS_NUM = 12
+CURSOR_BLINK = 450
 
 # Arrows
 DIS_SEP = "|"
@@ -50,7 +51,7 @@ COMP_FG = "ivory3"
 COMP_T = "CAS.IO"
 COMP_S = 15
 
-# Expression display banner properties:
+# Display banner properties:
 DISPLAY_Y = 60
 DISPLAY_X = 8
 DISPLAY_W = 314
@@ -60,14 +61,13 @@ DISPLAY_BG = "PaleGreen4"
 BORDER_SIZE = 3
 D_F_SIZE = 25
 
+# BUTTONS
 # Buttons properties:
 B_FG = "white"
 # Gaps between buttons:
 HEIGHT_GAP = 10
 WIDTH_GAP = 5
-
-# BUTTONS
-# The text on the key:
+# The text on keys:
 # Special functions
 SIN = "sin"
 COS = "cos"
@@ -108,7 +108,6 @@ L_PAR = "("
 R_PAR = ")"
 MINUS = "-"
 PLUS = "+"
-
 # The actual expression to execute:
 # Special functions
 OP_SIN = "sin("
@@ -128,12 +127,12 @@ OP_R_CEIL = ")"
 OP_L_CEIL = "math.ceil("
 OP_R_FLOOR = ")"
 OP_L_FLOOR = "math.floor("
-
-# The text on the display banner:
+# The key's text on the display banner:
 POW_DIS = "^"
 POW_3_DIS = "³"
 POW_2_DIS = "²"
 
+# Buttons types:
 # Big buttons:
 B1 = 0
 B1_SIZE = 18
@@ -153,6 +152,6 @@ B3_WIDTH = B1_WIDTH * 2 + WIDTH_GAP
 B4 = 3
 B4_COLOR = "DarkOrange2"
 B4_FG = "black"
-# Arrows:
+# Arrows buttons:
 B5 = 4
 B5_COLOR = "midnight blue"

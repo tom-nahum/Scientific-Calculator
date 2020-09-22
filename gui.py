@@ -10,22 +10,6 @@ from my_button import *
 import math
 
 
-def get_gap(t):
-    if t == B1:
-        return B1_HEIGHT, B1_WIDTH
-    else:
-        return B2_HEIGHT, B2_WIDTH
-
-
-def get_b_type(key, t):
-    if key == AC or key == DEL:
-        return B4
-    elif key == L_ARR or key == R_ARR:
-        return B5
-    else:
-        return t
-
-
 def sin(x):
     return math.sin(math.radians(x))
 
@@ -46,26 +30,28 @@ class Gui:
     powers = {POW_2: POW_2_DIS, POW_3: POW_3_DIS, POW: POW_DIS}
     rounding = {L_FLOOR: OP_L_FLOOR, R_FLOOR: OP_R_FLOOR, L_CEIL: OP_L_CEIL,
                 R_CEIL: OP_R_CEIL}
-    buttons = [[EQUALS, EQUALS, ANS, DOT, ZERO],
-               [MINUS, PLUS, THREE, TWO, ONE],
-               [DIVIDE, MUL, SIX, FIVE, FOUR],
-               [AC, DEL, NINE, EIGHT, SEVEN],
-               [POW, POW_3, POW_2, SQRT, R_PAR, L_PAR],
-               [MOD, LN, EXP, TAN, COS, SIN],
-               [R_FLOOR, L_FLOOR, R_ARR, L_ARR, R_CEIL, L_CEIL]]
+    buttons = [[(EQUALS, B3), (EQUALS, B3), (ANS, B1), (DOT, B1), (ZERO, B1)],
+               [(MINUS, B1), (PLUS, B1), (THREE, B1), (TWO, B1), (ONE, B1)],
+               [(DIVIDE, B1), (MUL, B1), (SIX, B1), (FIVE, B1), (FOUR, B1)],
+               [(AC, B4), (DEL, B4), (NINE, B1), (EIGHT, B1), (SEVEN, B1)],
+               [(POW, B2), (POW_3, B2), (POW_2, B2), (SQRT, B2), (R_PAR, B2),
+                (L_PAR, B2)],
+               [(MOD, B2), (LN, B2), (EXP, B2), (TAN, B2), (COS, B2), (SIN, B2)],
+               [(R_FLOOR, B2), (L_FLOOR, B2), (R_ARR, B5), (L_ARR, B5), (R_CEIL, B2),
+                (L_CEIL, B2)]]
 
     def __init__(self):
         self.screen = tk.Tk()
-        self.last_ans = INIT_ANS
         self.exp_stack = [(EXP_SEP, DIS_SEP)]
+        self.last_ans = INIT_ANS
         self.is_error = False
         self.is_answer = False
         self.cur_idx = 0
-        self.display_var = StringVar()
         self.init_screen()
+        self.display_var = StringVar()
         self.display_banner = self.set_display_banner()
         self.display_exp()
-        self.screen.after(450, self.cursor)
+        self.screen.after(CURSOR_BLINK, self.set_cursor)
 
     def init_screen(self):
         self.screen.title(TITLE)
@@ -94,7 +80,7 @@ class Gui:
         display.place(height=DISPLAY_H, width=DISPLAY_W, x=DISPLAY_X, y=DISPLAY_Y)
         return display
 
-    def cursor(self):
+    def set_cursor(self):
         if not self.is_answer and not self.is_error:
             cur = self.exp_stack[self.cur_idx]
             if cur[1] == DIS_SEP:
@@ -102,7 +88,7 @@ class Gui:
             elif cur[1] == "":
                 self.exp_stack[self.cur_idx] = (EXP_SEP, DIS_SEP)
             self.display_exp()
-        self.screen.after(400, self.cursor)
+        self.screen.after(400, self.set_cursor)
 
     def set_buttons(self):
         x = S_WIDTH - (2 * (WIDTH_GAP + B1_WIDTH))
@@ -117,12 +103,15 @@ class Gui:
         self.create_buttons(i, j, x, y, 7, 6, B2)
 
     def create_buttons(self, i, j, x, y, rows, cols, t):
-        height_gap, width_gap = get_gap(t)
+        if t == B1:
+            height_gap, width_gap = B1_HEIGHT, B1_WIDTH
+        else:
+            height_gap, width_gap = B2_HEIGHT, B2_WIDTH
         while i < rows:
             while j < cols:
                 x -= (WIDTH_GAP + t * 0.7 + width_gap)
-                key = self.buttons[i][j]
-                b_type = get_b_type(key, t)
+                key = self.buttons[i][j][0]
+                b_type = self.buttons[i][j][1]
                 self.buttons_factory(key, b_type, x, y)
                 j += 1
             y -= (HEIGHT_GAP + height_gap)
@@ -171,9 +160,7 @@ class Gui:
                          [(EXP_SEP, DIS_SEP)] + self.exp_stack[self.cur_idx + 1:]
 
     def remove_elem(self):
-        elem = self.exp_stack[self.cur_idx - 1]
         self.exp_stack = self.exp_stack[:self.cur_idx - 1] + self.exp_stack[self.cur_idx:]
-        return elem
 
     # def print_exp(self):
     #     exp = "".join(elem[0] for elem in self.exp_stack)
@@ -240,7 +227,7 @@ class Gui:
     def del_func(self):
         if not self.is_error and len(self.exp_stack) != 1:
             self.is_answer = False
-            elem = self.remove_elem()
+            self.remove_elem()
             self.cur_idx -= 1
             self.display_exp()
 
