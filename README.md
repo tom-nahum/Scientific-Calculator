@@ -1,2 +1,0 @@
-# Scientific-Calculator
-![](Calculator.gif)
