@@ -6,6 +6,7 @@
 
 TITLE = "My Calculator"
 INIT_ANS = ""
+MAX_CHARS_NUM = 12
 
 # Arrows
 DIS_SEP = "|"
@@ -110,9 +111,9 @@ PLUS = "+"
 
 # The actual expression to execute:
 # Special functions
-OP_SIN = "math.sin("
-OP_COS = "math.cos("
-OP_TAN = "math.tan("
+OP_SIN = "sin("
+OP_COS = "cos("
+OP_TAN = "tan("
 OP_EXP = "math.exp("
 OP_LN = "math.log("
 OP_SQRT = "math.sqrt("

@@ -6,8 +6,7 @@
 
 from tkinter import *
 from functools import partial
-from myButton import *
-import threading
+from my_button import *
 import math
 
 
@@ -25,6 +24,18 @@ def get_b_type(key, t):
         return B5
     else:
         return t
+
+
+def sin(x):
+    return math.sin(math.radians(x))
+
+
+def cos(x):
+    return math.cos(math.radians(x))
+
+
+def tan(x):
+    return math.tan(math.radians(x))
 
 
 class Gui:
@@ -164,10 +175,10 @@ class Gui:
         self.exp_stack = self.exp_stack[:self.cur_idx - 1] + self.exp_stack[self.cur_idx:]
         return elem
 
-    def print_exp(self):
-        exp = "".join(elem[0] for elem in self.exp_stack)
-        dis = "".join(elem[1] for elem in self.exp_stack)
-        print("Exp: ", exp, "\t", "Dis: ", dis)
+    # def print_exp(self):
+    #     exp = "".join(elem[0] for elem in self.exp_stack)
+    #     dis = "".join(elem[1] for elem in self.exp_stack)
+    #     print("Exp: ", exp, "\t", "Dis: ", dis)
 
     def get_exp(self, key):
         if key in self.arithmetic:
@@ -195,13 +206,12 @@ class Gui:
             self.exp_stack[self.cur_idx + direct] = (EXP_SEP, DIS_SEP)
             self.display_exp()
             self.cur_idx += direct
-        self.print_exp()
 
     def check_power(self):
         if self.cur_idx - 1 >= 0 and \
                 self.exp_stack[self.cur_idx - 1][1] in self.powers.values():
             return True
-        elif self.cur_idx + 1 <= len(self.exp_stack)-1 and \
+        elif self.cur_idx + 1 <= len(self.exp_stack) - 1 and \
                 self.exp_stack[self.cur_idx + 1][1] in self.powers.values():
             return True
         else:
@@ -219,7 +229,6 @@ class Gui:
             self.add_elem(self.get_exp(key), self.get_dis(key))
             self.cur_idx += 1
             self.display_exp()
-        self.print_exp()
 
     def ans_func(self):
         if not self.is_error:
@@ -227,7 +236,6 @@ class Gui:
             self.add_elem(self.last_ans, ANS)
             self.cur_idx += 1
             self.display_exp()
-        self.print_exp()
 
     def del_func(self):
         if not self.is_error and len(self.exp_stack) != 1:
@@ -235,17 +243,15 @@ class Gui:
             elem = self.remove_elem()
             self.cur_idx -= 1
             self.display_exp()
-        self.print_exp()
 
     def ac_func(self):
         if self.is_error:
-            self.is_answer = False
             self.is_error = False
             self.last_ans = INIT_ANS
+        self.is_answer = False
         self.exp_stack = [(EXP_SEP, DIS_SEP)]
         self.cur_idx = 0
         self.display_exp()
-        self.print_exp()
 
     def equals_func(self):
         if not self.is_error:
@@ -254,7 +260,7 @@ class Gui:
                     self.display_var.set(self.last_ans)
                 else:
                     expression = "".join(elem[0] for elem in self.exp_stack)
-                    result = str(eval(expression))
+                    result = str(eval(expression))[:MAX_CHARS_NUM]
                     self.display_var.set(result)
                     self.last_ans = result
             except OverflowError:
@@ -270,4 +276,3 @@ class Gui:
                 self.is_answer = True
                 self.exp_stack = [(EXP_SEP, DIS_SEP)]
                 self.cur_idx = 0
-                self.print_exp()
