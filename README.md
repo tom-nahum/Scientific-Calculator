@@ -1,3 +1,3 @@
 # Scientific-Calculator
 
-![](ezgif.com-resize.gif)
+![](ezgif.com-resize(1).gif)
