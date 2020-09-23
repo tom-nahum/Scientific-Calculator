@@ -1,7 +1,8 @@
 ##########
 # FILE: constants.py
 # WRITER: Tom Nahum, CS Student at the Hebrew University of Jerusalem
-# DESCRIPTION:
+# DESCRIPTION: This file includes buttons classes. Every button inherits from MyButton
+# class (which is abstract class).
 ##########
 
 from abc import ABC
@@ -11,11 +12,16 @@ from constants import *
 
 
 class MyButton(ABC):
+    """This is an abstract class, which representing a button. """
+
     def __init__(self, key, loc, func):
-        self.size = None
+        """The constructor of button object. A button has color, size (height,width),
+        font size and color, the text on the button (key), the functionality of the
+        button and location on the screen (x,y)."""
         self.color = None
         self.height = None
         self.width = None
+        self.f_size = None
         self.font_color = B_FG
         self.key = key
         self.func = func
@@ -23,7 +29,9 @@ class MyButton(ABC):
         self.y = loc[1]
 
     def create(self, screen):
-        button_font = font.Font(family=FONT, size=self.size, weight=font.BOLD)
+        """This method gets a screen, and according to the attributes of the button,
+        placed it on the given screen."""
+        button_font = font.Font(family=FONT, size=self.f_size, weight=font.BOLD)
         button = tk.Button(screen, text=self.key, command=self.func, bg=self.color,
                            fg=self.font_color, font=button_font)
         button.pack()
@@ -31,18 +39,38 @@ class MyButton(ABC):
 
 
 class StandardButton(MyButton):
+    """B1 type buttons. This class represents the buttons at the lower part of the
+    calculator."""
     def __init__(self, key, loc, func):
         super().__init__(key, loc, func)
-        self.size = B1_SIZE
+        self.f_size = B1_SIZE
         self.color = B1_COLOR
         self.height = B1_HEIGHT
         self.width = B1_WIDTH
 
 
-class ExtraButton(MyButton):
+class EqualsButton(StandardButton):
+    """B3 type buttons. This class represents the '=' button. It is wider than the
+    standard buttons."""
     def __init__(self, key, loc, func):
         super().__init__(key, loc, func)
-        self.size = B2_SIZE
+        self.width = B3_WIDTH
+
+
+class ResetButtons(StandardButton):
+    """B4 type buttons. This class represents 'AC' and 'DEL' buttons."""
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
+        self.color = B4_COLOR
+        self.font_color = B4_FG
+
+
+class ExtraButton(MyButton):
+    """B2 type buttons. This class represents the buttons at the upper part of the
+    calculator."""
+    def __init__(self, key, loc, func):
+        super().__init__(key, loc, func)
+        self.f_size = B2_SIZE
         self.color = B2_COLOR
         self.height = B2_HEIGHT
         self.width = B2_WIDTH
@@ -50,24 +78,6 @@ class ExtraButton(MyButton):
 
 class ArrowButton(ExtraButton):
     def __init__(self, key, loc, func):
+        """B5 type buttons. This class represents the arrows keys."""
         super().__init__(key, loc, func)
         self.color = B5_COLOR
-
-
-class EqualsButton(MyButton):
-    def __init__(self, key, loc, func):
-        super().__init__(key, loc, func)
-        self.size = B1_SIZE
-        self.color = B1_COLOR
-        self.height = B1_HEIGHT
-        self.width = B3_WIDTH
-
-
-class ResetButtons(MyButton):
-    def __init__(self, key, loc, func):
-        super().__init__(key, loc, func)
-        self.size = B1_SIZE
-        self.color = B4_COLOR
-        self.height = B1_HEIGHT
-        self.width = B1_WIDTH
-        self.font_color = B4_FG

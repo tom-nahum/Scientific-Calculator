@@ -1,7 +1,7 @@
 ##########
 # FILE: constants.py
 # WRITER: Tom Nahum, CS Student at the Hebrew University of Jerusalem
-# DESCRIPTION:
+# DESCRIPTION: The constants of the program.
 ##########
 
 TITLE = "My Calculator"

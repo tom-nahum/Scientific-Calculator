@@ -1,11 +1,11 @@
 ##########
 # FILE: main.py
 # WRITER: Tom Nahum, CS Student at the Hebrew University of Jerusalem
-# DESCRIPTION:
+# DESCRIPTION: This file runs the hole program.
 ##########
 
-from gui import *
+from calculator import *
 
 if __name__ == '__main__':
-    gui = Gui()
+    gui = Calculator()
     gui.screen.mainloop()
