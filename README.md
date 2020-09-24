@@ -30,7 +30,7 @@ I've created a calculator class, which has the following fields:
 In order to calculate an expression, I've used python's **eval()** method, which gets a string and calculate it's value.
 
 ###### my_button.py
-In this calculator, we have 5 types of buttons. According to **open-close** principle, I've created     
+In this calculator, we have 5 types of buttons. According to **open-close principle**, I've created     
 an abstract class called MyButton. All the buttons inherits from this class, which includes 
 all the attributes of a button (size, color, font and location on the screen).
 In addition, this class has a method 'create' which place a button on the screen. 
