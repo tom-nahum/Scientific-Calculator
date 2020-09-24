@@ -21,11 +21,11 @@ The calculator has the following functionalities:
 ## Design
 ###### calculuator.py
   I've created a calculator class, which has the following fields:
-    * A tkinter object called 'screen'.
-    * An array that holds the current expression entered by the user. 
-      I've used this data structore in order to use python's slicing functionality. 
-    * Bolleans that indicates whether an error occured.
-    * A StringVar object, which responsible for presenting the current expression on the display banner.
+   * A tkinter object called 'screen'.
+   * An array that holds the current expression entered by the user. 
+     I've used this data structore in order to use python's slicing functionality. 
+   * Bolleans that indicates whether an error occured.
+   * A StringVar object, which responsible for presenting the current expression on the display banner.
   In order to calculate an expression, I've used python's eval() method, which gets a string and calculate it's value.
 
 ###### my_button.py
