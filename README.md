@@ -2,8 +2,7 @@
 
 This is the final result:
 
-![hippo](https://media3.giphy.com/media/aUovxH8Vf9qDu/giphy.gif)
-![](Calculator.gif)
+![<img align="right" width="100" height="100" src="http://www.fillmurray.com/100/100">](Calculator.gif)
 
 
 
