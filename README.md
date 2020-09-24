@@ -1,12 +1,7 @@
 # Scientific Calculator
 
-This is the final result:
+## Description <img align="right" src="Calculator.gif">
 
-<p align="right">
-  <img src="Calculator.gif" alt="animated" />
-</p>
-
-## Description
 This is a scientific calculator program, built using python's tkinter library.
 A calculator's gui consist of 3 main parts:
   * Screen: Basically the lower layer of the calculator.
