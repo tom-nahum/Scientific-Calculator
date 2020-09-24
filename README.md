@@ -4,7 +4,6 @@ This is the final result:
 
 <p align="right">
   <img src="Calculator.gif" alt="animated" />
-</p>
 
 ## Description
 This is a scientific calculator program, built using python's tkinter library.
@@ -42,4 +41,6 @@ The calculator has the following functionalities:
   This design allowed me to implement Factory design patten, as a method which creates buttons     
   according to their type.
   
+  </p>
+
   
