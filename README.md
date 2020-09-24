@@ -5,9 +5,6 @@ This is the final result:
 <p align="right">
   <img src="Calculator.gif" alt="animated" />
 </p>
-![](Calculator.gif)
-
-
 
 ## Description
 This is a scientific calculator program, built using python's tkinter library.
