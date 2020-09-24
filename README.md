@@ -2,7 +2,9 @@
 
 This is the final result:
 
-![Demo:](Calculator.gif)
+![](Calculator.gif)
+![hippo](https://media3.giphy.com/media/aUovxH8Vf9qDu/giphy.gif)
+
 
 ## Description
 This is a scientific calculator program, built using python's tkinter library.
