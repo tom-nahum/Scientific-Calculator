@@ -73,28 +73,28 @@ class Calculator:
         # Boolean indicates that equals button has been pressed.
         self.is_answer = False
         # The current index of the cursor
-        self.__cur_idx = 0
-        self.__display_var = StringVar()
-        self.__init_screen()
+        self._cur_idx = 0
+        self._display_var = StringVar()
+        self._init_screen()
 
-    def __init_screen(self):
+    def _init_screen(self):
         """This method responsible for setting up the calculator screen."""
-        self.__set_background()
-        self.__set_labels()
-        self.__set_buttons()
-        self.__set_display_banner()
-        self.__display_exp()
+        self._set_background()
+        self._set_labels()
+        self._set_buttons()
+        self._set_display_banner()
+        self._display_exp()
         # Starting cursor action
-        self.screen.after(CURSOR_BLINK, self.__set_cursor)
+        self.screen.after(CURSOR_BLINK, self._set_cursor)
 
-    def __set_background(self):
+    def _set_background(self):
         """Setting up the back of the screen, it's title, size and color."""
         self.screen.title(TITLE)
         self.screen.geometry(SCREEN_SIZE)
         self.screen.resizable(width=False, height=False)
         self.screen.configure(background=S_COLOR)
 
-    def __set_labels(self):
+    def _set_labels(self):
         """Setting up the labels on the screen."""
         self.gen_label(NAME_S, NAME_T, NAME_FG, NAME_SIZE, NAME_LOC)
         self.gen_label(COMP_S, COMP_T, COMP_FG, COMP_SIZE, COMP_LOC)
@@ -107,26 +107,26 @@ class Calculator:
         label.pack()
         label.place(height=size[0], width=size[1], x=loc[0], y=loc[1])
 
-    def __set_display_banner(self):
+    def _set_display_banner(self):
         """Setting up the display banner and place it on the screen"""
         display_font = font.Font(family=FONT, size=D_F_SIZE)
-        display = Entry(self.screen, textvariable=self.__display_var, bd=BORDER_SIZE,
+        display = Entry(self.screen, textvariable=self._display_var, bd=BORDER_SIZE,
                         bg=DISPLAY_BG, font=display_font, fg=DISPLAY_FG)
         display.pack()
         display.place(height=DISPLAY_H, width=DISPLAY_W, x=DISPLAY_X, y=DISPLAY_Y)
 
-    def __set_cursor(self):
+    def _set_cursor(self):
         """This method responsible for the cursor animation.
         every CURSOR_BLINK seconds this method will be called and switch the current
         cursor representation (from '|' to '')"""
         if not self.is_answer and not self.is_error:
-            cursor = self.exp_stack[self.__cur_idx]
+            cursor = self.exp_stack[self._cur_idx]
             blink = [DIS_SEP, ""]
-            self.exp_stack[self.__cur_idx] = (EXP_SEP, blink[1 - blink.index(cursor[1])])
-            self.__display_exp()
-        self.screen.after(CURSOR_BLINK, self.__set_cursor)
+            self.exp_stack[self._cur_idx] = (EXP_SEP, blink[1 - blink.index(cursor[1])])
+            self._display_exp()
+        self.screen.after(CURSOR_BLINK, self._set_cursor)
 
-    def __set_buttons(self):
+    def _set_buttons(self):
         """This method responsible for the placement of the buttons on the screen"""
         x = S_WIDTH - (2 * (WIDTH_GAP + B1_WIDTH))
         y = S_HEIGHT - (HEIGHT_GAP - WIDTH_GAP + B1_HEIGHT)
@@ -134,12 +134,12 @@ class Calculator:
         self.buttons_factory(EQUALS, B3, x, y)
         j = 2
         # create big buttons
-        i, j, x, y = self.__place_buttons(i, j, x, y, 4, 5, B1_HEIGHT, B1_WIDTH)
+        i, j, x, y = self._place_buttons(i, j, x, y, 4, 5, B1_HEIGHT, B1_WIDTH)
         y += HEIGHT_GAP
         # create small buttons
-        self.__place_buttons(i, j, x, y, 7, 6, B2_HEIGHT, B2_WIDTH)
+        self._place_buttons(i, j, x, y, 7, 6, B2_HEIGHT, B2_WIDTH)
 
-    def __place_buttons(self, i, j, x, y, rows, cols, height_gap, width_gap):
+    def _place_buttons(self, i, j, x, y, rows, cols, height_gap, width_gap):
         """Given a grid size (rows,cols), this method place the buttons from
         self.buttons matrix at (i,j) index, on the desired location on the screen
         according to (x,y) parameters."""
@@ -160,19 +160,19 @@ class Calculator:
         """Gets a button display name (key), and returns the function this button should
         execute."""
         if key == EQUALS:
-            return self.__equals_func
+            return self._equals_func
         elif key == ANS:
-            return self.__ans_func
+            return self._ans_func
         elif key == DEL:
-            return self.__del_func
+            return self._del_func
         elif key == AC:
-            return self.__ac_func
+            return self._ac_func
         elif key == L_ARR:
-            return partial(self.__arrow_func, L)
+            return partial(self._arrow_func, L)
         elif key == R_ARR:
-            return partial(self.__arrow_func, R)
+            return partial(self._arrow_func, R)
         else:
-            return partial(self.__key_func, key)
+            return partial(self._key_func, key)
 
     def buttons_factory(self, key, t, x, y):
         """Given a button's key and type, the factory creates the relevant button object
@@ -191,28 +191,28 @@ class Calculator:
             button = ArrowButton(key, (x, y), func)
         button.create(self.screen)
 
-    def __display_exp(self):
+    def _display_exp(self):
         """This method generates cur_display, which is a string that contains the
         display representation of the current expression the user typed. Then placed
         it in the display banner."""
         cur_display = "".join(elem[1] for elem in self.exp_stack)
-        self.__display_var.set(cur_display)
+        self._display_var.set(cur_display)
 
-    def __add_elem(self, exp_elem, dis_elem):
+    def _add_elem(self, exp_elem, dis_elem):
         """
         Adds new element to the current expression array.
         :param exp_elem: The actual expression python execute.
         :param dis_elem: The representation of the expression on the display banner.
         """
-        self.exp_stack = self.exp_stack[:self.__cur_idx] + [(exp_elem, dis_elem)] \
-                         + [(EXP_SEP, DIS_SEP)] + self.exp_stack[self.__cur_idx + 1:]
-        self.__cur_idx += 1
+        self.exp_stack = self.exp_stack[:self._cur_idx] + [(exp_elem, dis_elem)] \
+                         + [(EXP_SEP, DIS_SEP)] + self.exp_stack[self._cur_idx + 1:]
+        self._cur_idx += 1
 
-    def __remove_elem(self):
+    def _remove_elem(self):
         """Removes an element according to the cursor position. The element that is
         before the cursor will be deleted."""
-        self.exp_stack = self.exp_stack[:self.__cur_idx - 1] + self.exp_stack[self.__cur_idx:]
-        self.__cur_idx -= 1
+        self.exp_stack = self.exp_stack[:self._cur_idx - 1] + self.exp_stack[self._cur_idx:]
+        self._cur_idx -= 1
 
     # def print_exp(self):
     #     exp = "".join(elem[0] for elem in self.exp_stack)
@@ -240,33 +240,33 @@ class Calculator:
         else:
             return key
 
-    def __arrow_func(self, direction):
+    def _arrow_func(self, direction):
         """This method responsible for the action of the arrows keys."""
         if not self.is_error and \
-                not ((direction == L and self.__cur_idx == 0) or
-                     (direction == R and self.__cur_idx == len(self.exp_stack) - 1)):
+                not ((direction == L and self._cur_idx == 0) or
+                     (direction == R and self._cur_idx == len(self.exp_stack) - 1)):
             self.is_answer = False
-            self.exp_stack[self.__cur_idx] = self.exp_stack[self.__cur_idx + direction]
-            self.exp_stack[self.__cur_idx + direction] = (EXP_SEP, DIS_SEP)
-            self.__display_exp()
-            self.__cur_idx += direction
+            self.exp_stack[self._cur_idx] = self.exp_stack[self._cur_idx + direction]
+            self.exp_stack[self._cur_idx + direction] = (EXP_SEP, DIS_SEP)
+            self._display_exp()
+            self._cur_idx += direction
 
-    def __check_power(self):
+    def _check_power(self):
         """In actual scientific calculator, one can place only one power char after
         some number. This method returns True in case the user tries to put power element
         in a sequence."""
-        if self.__cur_idx - 1 >= 0 and \
-                self.exp_stack[self.__cur_idx - 1][1] in self.powers.values():
+        if self._cur_idx - 1 >= 0 and \
+                self.exp_stack[self._cur_idx - 1][1] in self.powers.values():
             # if there is an element left to the cursor and it's a power:
             return True
-        elif self.__cur_idx + 1 <= len(self.exp_stack) - 1 and \
-                self.exp_stack[self.__cur_idx + 1][1] in self.powers.values():
+        elif self._cur_idx + 1 <= len(self.exp_stack) - 1 and \
+                self.exp_stack[self._cur_idx + 1][1] in self.powers.values():
             # if there is an element right to the cursor and it's a power:
             return True
         else:
             return False
 
-    def __key_func(self, key):
+    def _key_func(self, key):
         """This method responsible for the action of most buttons, except for special
         buttons which are: AC,DEL,Ans,Arrows and equals."""
         if not self.is_error:
@@ -274,31 +274,31 @@ class Calculator:
             if len(self.exp_stack) == 1 and self.pre_ans != INIT_ANS \
                     and key in self.arithmetic:
                 # to allow concatenation of previous answer with a new arithmetic operand
-                self.__add_elem(self.pre_ans, ANS)
-            if key in self.powers and self.__check_power():
+                self._add_elem(self.pre_ans, ANS)
+            if key in self.powers and self._check_power():
                 # in case the user tries to do multiple powers, do not allow it
                 return
-            self.__add_elem(self.get_exp(key), self.get_dis(key))
-            self.__display_exp()
+            self._add_elem(self.get_exp(key), self.get_dis(key))
+            self._display_exp()
 
-    def __ans_func(self):
+    def _ans_func(self):
         """This method responsible for the action of 'Ans' button"""
         if not self.is_error:
             self.is_answer = False
             if self.pre_ans == INIT_ANS:
                 # in case there is no pre answer, and however the user try using it:
                 self.pre_ans = "0"
-            self.__add_elem(self.pre_ans, ANS)
-            self.__display_exp()
+            self._add_elem(self.pre_ans, ANS)
+            self._display_exp()
 
-    def __del_func(self):
+    def _del_func(self):
         """This method responsible for the action of 'DEL' button"""
         if not self.is_error and len(self.exp_stack) != 1:
             self.is_answer = False
-            self.__remove_elem()
-            self.__display_exp()
+            self._remove_elem()
+            self._display_exp()
 
-    def __ac_func(self):
+    def _ac_func(self):
         """This method responsible for the action of 'AC' button"""
         if self.is_error:
             # in case an error occurred, only pressing AC button will continue the run
@@ -306,34 +306,34 @@ class Calculator:
             self.pre_ans = INIT_ANS
         self.is_answer = False
         self.exp_stack = [(EXP_SEP, DIS_SEP)]
-        self.__cur_idx = 0
-        self.__display_exp()
+        self._cur_idx = 0
+        self._display_exp()
 
-    def __calc_expression(self):
+    def _calc_expression(self):
         """This method generates expression, which is a string that contains the
         current expression the user typed, calculates it's value and returns it."""
         expression = "".join(elem[0] for elem in self.exp_stack)
         return str(eval(expression))[:MAX_CHARS_NUM]
 
-    def __equals_func(self):
+    def _equals_func(self):
         """This method responsible for the action of '=' button"""
         if not self.is_error:
             try:
                 if len(self.exp_stack) != 1:
-                    result = self.__calc_expression()
-                    self.__display_var.set(result)
+                    result = self._calc_expression()
+                    self._display_var.set(result)
                     self.pre_ans = result
                     self.is_answer = True
             except OverflowError:
-                self.__display_var.set(STACK_ERROR)
+                self._display_var.set(STACK_ERROR)
                 self.is_error = True
             except (ZeroDivisionError, ValueError):
-                self.__display_var.set(MATH_ERROR)
+                self._display_var.set(MATH_ERROR)
                 self.is_error = True
             except SyntaxError:
-                self.__display_var.set(SYNTAX_ERROR)
+                self._display_var.set(SYNTAX_ERROR)
                 self.is_error = True
             finally:
                 # initialize expression and cursor position
                 self.exp_stack = [(EXP_SEP, DIS_SEP)]
-                self.__cur_idx = 0
+                self._cur_idx = 0
