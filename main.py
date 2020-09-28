@@ -1,7 +1,8 @@
 ##########
 # FILE: main.py
-# WRITER: Tom Nahum, CS Student at the Hebrew University of Jerusalem
-# DESCRIPTION: This file runs the hole program.
+# WRITER: Tom Nahum, https://www.linkedin.com/in/tom-nachum/
+# CONTACT: tom.nachum@gmail.com, +972-54-540-0958
+# DESCRIPTION: This file runs the whole program.
 ##########
 
 from calculator import *
